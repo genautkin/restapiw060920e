@@ -1,7 +1,9 @@
 const users = require('./routes/users');
+const auth = require('./routes/auth');
 const express = require('express');
 const app = express();
 const http = require('http').Server(app);
+require('dotenv').config()
 
 const mongoose = require('mongoose');
  
@@ -15,6 +17,7 @@ mongoose.connect('mongodb://localhost/my_rest_api', {
 app.use(express.json());
  
 app.use('/api/users', users);
+app.use('/api/auth', auth);
 
 
  
