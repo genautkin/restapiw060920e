@@ -75,12 +75,7 @@ return schema.validate(user);
 
 }
 
-function test(){
-    console.log("test");
-}
 
 exports.User = User;
 
 exports.validate = validateUser;
-
-exports.Console = test;
