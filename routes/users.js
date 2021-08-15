@@ -1,8 +1,67 @@
 const express = require('express');
 const router = express.Router();
-const { validate, User } = require('../models/user');
+const { validate, User , validateCards} = require('../models/user');
+const { Card } = require('../models/card');
 const bcrypt = require('bcrypt');
 const _ = require('lodash');
+const auth = require('../middlewares/auth');
+
+const getCards = async (cardsArray) => {
+    const cards = await Card.find({ "bizNumber": { $in: cardsArray } });
+    return cards;
+  };
+
+  router.get('/cards', auth, async (req, res) => {
+ 
+    if (!req.query.numbers) {
+       return  res.status(400).send('Missing numbers data');}
+   
+    let data = {};
+    data.cards = req.query.numbers.split(",");
+   
+    const cards = await getCards(data.cards);
+    res.send(cards);
+   
+  });
+
+  router.get('/myCards', auth, async (req, res) => {
+    let user
+    try {
+          user = await User.findById(req.user._id);
+    } catch (error) {
+        return res.status(400).send(error);
+    }
+    if (!user.cards) {
+        return res.status(200).send("You don't have any cards");
+    }
+    const cards = await getCards(user.cards);
+    res.send(cards);
+   
+  });
+   
+  router.patch('/cards', auth, async (req, res) => {
+   
+    const { error } = validateCards(req.body);
+
+    if (error) {
+        return res.status(400).send(error.details[0].message);
+    }
+   
+    const cards = await getCards(req.body.cards);
+    if (cards.length != req.body.cards.length) {
+        return res.status(400).send("Card numbers don't match");
+    }
+    try {
+        let user = await User.findById(req.user._id);
+        user.cards = req.body.cards;
+        user = await user.save();
+        res.send(user);
+    } catch (error) {
+        return res.status(400).send(error);
+    }
+
+   
+  });
 
 router.post('/', userRequest);
 async function userRequest(req, res) {

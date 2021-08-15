@@ -82,6 +82,9 @@ function validateCard(card) {
    
   }
 
+
 exports.generateBizNumber = generateBizNumber;
 exports.Card = Card;
 exports.validateCard = validateCard;
+
+

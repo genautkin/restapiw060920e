@@ -47,9 +47,10 @@ type: Boolean,
 required: true
 
 },
-createdAt: { type: Date, default: Date.now }
-
-});
+createdAt: { type: Date, default: Date.now },
+cards: Array
+}
+);
 
 userSchema.methods.generateAuthToken = function () {
     const token = jwt.sign({ _id: this._id, biz: this.biz }, process.env.JSON_TOKEN_PASSWORD);
@@ -82,6 +83,15 @@ return schema.validate(user);
 
 }
 
+function validateCards(data) {
+  const schema = Joi.object({
+    cards: Joi.array().min(1).required()
+  });
+ 
+  return schema.validate(data);
+}
+
+exports.validateCards = validateCards
 
 exports.User = User;
 

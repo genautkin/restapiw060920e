@@ -4,12 +4,47 @@ const { Card, validateCard, generateBizNumber } = require('../models/card');
 const auth = require('../middlewares/auth');
 const router = express.Router();
 
-router.get('/:id', auth, async (req, res) => {
-    const card = await Card.findOne({ _id: req.params.id, user_id: req.user._id });
-    if (!card) return res.status(404).send('The card with the given ID was not found.');
-    res.send(card);
+router.get('/query', auth, async (req, res) => {
+  console.log(req.query)
+  if (req.query.arr){
+    return res.send(req.query.arr.split(","));
+  }
+  res.send(req.query);
    
   });
+
+
+
+
+  router.delete('/:id', auth, async (req, res) => {
+    let filter = { _id: req.params.id, user_id: req.user._id }
+    try {
+      const card = await Card.findOneAndRemove(filter);
+      res.send(card);
+
+    } catch (error) {
+      return res.status(404).send('The card with the given ID was not found.');
+    }
+  });
+
+router.get('/:id', auth, async (req, res) => {
+  try {
+    const card = await Card.findOne({ _id: req.params.id, user_id: req.user._id });
+    card ? res.send(card) : res.status(404).send('The card with the given ID was not found.');
+  }
+  catch {
+    return res.status(404).send('The card with the given ID was not found.');
+  }
+   
+  });
+
+  router.get('/:id/details', auth, async (req, res) => {
+    console.log(req.params.id)
+    res.send("Good");
+     
+    });
+
+   
 
   router.put('/:id', auth, async (req, res) => {
     const { error } = validateCard(req.body);
